@@ -68,8 +68,8 @@ def download_model():
     except Exception as e:
         print(f"Error downloading model: {e}")
         print("\nPlease download manually:")
-        print(f"1. Visit: https://alphacephei.com/vosk/models")
-        print(f"2. Download: vosk-model-small-en-us-0.15.zip")
+        print("1. Visit: https://alphacephei.com/vosk/models")
+        print("2. Download: vosk-model-small-en-us-0.15.zip")
         print(f"3. Extract to: {MODEL_DIR}")
         return False
 
@@ -87,7 +87,7 @@ def download_model():
     try:
         os.remove(ZIP_FILENAME)
         print("Cleaned up temporary files.")
-    except:
+    except Exception:
         pass
 
     # Verify
@@ -117,6 +117,6 @@ if __name__ == "__main__":
         if Path(ZIP_FILENAME).exists():
             try:
                 os.remove(ZIP_FILENAME)
-            except:
+            except Exception:
                 pass
         sys.exit(1)

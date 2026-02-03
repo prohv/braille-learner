@@ -7,7 +7,7 @@ Uses constrained vocabulary for deterministic, fast recognition.
 import json
 import time
 from pathlib import Path
-from typing import Optional, List, Dict, Generator
+from typing import Optional, List, Dict
 import config
 
 # Optional imports - fail gracefully if not available
@@ -28,7 +28,7 @@ except ImportError:
     pyaudio = None
 
 from speech.intent import build_vosk_grammar
-from utils.audio_helper import get_default_input_device
+from audio.utils import get_default_input_device
 
 
 class VoskRecognizerError(Exception):
@@ -210,7 +210,7 @@ class VoskLetterRecognizer:
             try:
                 stream.stop_stream()
                 stream.close()
-            except:
+            except Exception:
                 pass
             p.terminate()
 
@@ -284,7 +284,7 @@ class VoskLetterRecognizer:
             try:
                 stream.stop_stream()
                 stream.close()
-            except:
+            except Exception:
                 pass
             p.terminate()
 
@@ -343,7 +343,7 @@ class VoskLetterRecognizer:
             default = p.get_default_input_device_info()
             print(f"Default device: [{default['index']}] {default['name']}")
             p.terminate()
-        except:
+        except Exception:
             pass
 
 

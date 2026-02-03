@@ -4,6 +4,7 @@ Functions for device detection, stream creation, and safe RMS calculation.
 Designed to be robust and avoid common pitfalls (NaN, overflow, etc.).
 """
 
+import time
 from typing import Optional, List, Dict
 import numpy as np
 
@@ -52,7 +53,7 @@ def list_audio_devices() -> List[Dict]:
             for device in devices:
                 if device["index"] == default_idx:
                     device["default"] = True
-        except:
+        except Exception:
             pass
 
     finally:
@@ -108,7 +109,7 @@ def calculate_rms(audio_data: bytes) -> float:
     # Convert bytes to numpy array
     try:
         audio_array = np.frombuffer(audio_data, dtype=np.int16)
-    except:
+    except Exception:
         return 0.0
 
     if len(audio_array) == 0:
@@ -165,7 +166,7 @@ def detect_best_sample_rate(device_index: Optional[int] = None) -> int:
                 # Test if default rate works
                 if _test_sample_rate(p, device_index, default_rate):
                     return default_rate
-            except:
+            except Exception:
                 pass
         else:
             try:
@@ -174,7 +175,7 @@ def detect_best_sample_rate(device_index: Optional[int] = None) -> int:
 
                 if _test_sample_rate(p, device_index, default_rate):
                     return default_rate
-            except:
+            except Exception:
                 pass
 
         # Try common rates in order of preference
@@ -214,7 +215,7 @@ def _test_sample_rate(p: pyaudio.PyAudio, device_index: int, rate: int) -> bool:
         )
         stream.close()
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -298,6 +299,6 @@ class AudioLevelMeter:
             try:
                 stream.stop_stream()
                 stream.close()
-            except:
+            except Exception:
                 pass
             p.terminate()

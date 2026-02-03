@@ -18,8 +18,8 @@ from speech.vosk_recognizer import (
 from speech.intent import parse_intent, IntentType
 from audio.utils import AudioLevelMeter
 from display import ServoDisplay, SimulationDisplay
-from modules.braille_mapper import BrailleMapper
-from modules.tts_feedback import TTSFeedback
+from braille.mapping import get_braille_pattern
+from audio.feedback import TTSFeedback
 from braille.render import (
     render_ascii_grid,
     format_pattern_binary,
@@ -100,7 +100,6 @@ class BrailleLearner:
         try:
             # Initialize components
             self.recognizer = VoskLetterRecognizer()
-            self.mapper = BrailleMapper()
             self.tts = TTSFeedback()
 
             # Choose display based on mode
@@ -210,7 +209,11 @@ class BrailleLearner:
         4. Reset display
         """
         # Get pattern
-        pattern = self.mapper.get_braille_pattern(char)
+        pattern = get_braille_pattern(char)
+        if pattern is None:
+            self.tts.speak_error_invalid()
+            print(f"Invalid character: {char}")
+            return
 
         # 1. Set display pattern (non-blocking)
         self.display.set_pattern(pattern)

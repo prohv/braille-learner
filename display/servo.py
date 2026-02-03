@@ -90,5 +90,5 @@ class ServoDisplay(Display):
             from gpiozero import Device
 
             Device.pin_factory.close()
-        except:
+        except Exception:
             pass

@@ -5,7 +5,6 @@ Handles letter name variants and optional "letter" prefix.
 """
 
 from enum import Enum, auto
-from typing import Optional
 
 
 class IntentType(Enum):

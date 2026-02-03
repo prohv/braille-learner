@@ -5,7 +5,6 @@ from speech.intent import (
     Intent,
     IntentType,
     parse_intent,
-    LETTER_PHRASES,
     get_all_letter_phrases,
     get_exit_phrases,
     build_vosk_grammar,

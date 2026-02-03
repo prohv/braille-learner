@@ -3,7 +3,6 @@
 import unittest
 from braille import (
     render_ascii_grid,
-    render_unicode_grid,
     format_pattern_binary,
     get_dots_raised,
     DOT_RAISED_ASCII,

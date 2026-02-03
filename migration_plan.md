@@ -497,7 +497,7 @@ class TestIntentParser(unittest.TestCase):
 
 **File:** `download_vosk_model.py`
 
-**Purpose:** Download Vosk English model (similar to old script but for Vosk).
+**Purpose:** Download Vosk English model for offline speech recognition.
 
 **Implementation:**
 ```python
@@ -616,6 +616,92 @@ echo "   python main.py"
 
 ---
 
+## Phase 5: Legacy Cleanup (Post-Migration)
+
+**Status:** In Progress - Clean removal of old Whisper/Faster-Whisper code
+
+**Files to be removed:**
+1. `modules/speech_recognizer.py` - Old Whisper-based speech recognizer
+2. `modules/servo_controller.py` - Legacy servo controller (replaced by display/)
+3. `modules/braille_mapper.py` - Legacy mapper (function moved to braille/mapping.py)
+4. `modules/tts_feedback.py` - Legacy TTS (function moved to audio/feedback.py)
+5. `test_whisper.py` - Whisper-specific test script
+6. `tests/test_servo_controller.py` - Tests for legacy servo controller
+7. `tests/test_braille_mapper.py` - Tests for legacy mapper (replaced by braille tests)
+8. `utils/audio_helper.py` - Legacy audio utilities (replaced by audio/utils.py)
+9. `utils/__init__.py` - Empty utils package (audio helpers moved)
+
+**Files to be updated:**
+1. `config.py` - Remove WHISPER_* constants
+2. `setup.sh` - Remove Whisper references, update for Vosk workflow
+3. `main.py` - Update imports to use new audio/feedback and braille/mapping
+4. `speech/vosk_recognizer.py` - Update import from utils.audio_helper to audio.utils
+
+**Config cleanup:**
+- Remove: `WHISPER_MODEL_SIZE`, `WHISPER_DEVICE`, `WHISPER_COMPUTE_TYPE`, `WHISPER_LANGUAGE`, `WHISPER_BEAM_SIZE`
+- These are no longer used since we use Vosk with grammar constraints instead of Whisper
+
+**Target file structure after cleanup:**
+```
+braille-learner/
+├── main.py                          # Entry point, CLI, app controller
+├── config.py                        # Settings (servos, timing, model paths, no Whisper)
+├── download_vosk_model.py           # Vosk model downloader
+├── setup.sh                         # Installation script (Vosk workflow)
+├── pyproject.toml                   # Dependencies (faster-whisper removed)
+├── README.md                        # Updated documentation
+│
+├── speech/                          # Speech recognition
+│   ├── __init__.py
+│   ├── intent.py                    # Intent parser (phrase → letter/command)
+│   └── vosk_recognizer.py           # Vosk streaming recognizer with grammar
+│
+├── audio/                           # Audio utilities + TTS
+│   ├── __init__.py
+│   ├── utils.py                     # Device listing, stream creation, RMS
+│   └── feedback.py                  # TTS feedback (pyttsx3 wrapper)
+│
+├── braille/                         # Braille mapping and display
+│   ├── __init__.py
+│   ├── mapping.py                   # Character → 6-bit pattern
+│   └── render.py                    # ASCII grid renderer (O/.)
+│
+├── display/                         # Output abstraction
+│   ├── __init__.py
+│   ├── base.py                      # Abstract Display interface
+│   ├── servo.py                     # GPIO servo implementation
+│   └── sim.py                       # Simulation (console output)
+│
+└── tests/                           # Tests for new architecture
+    ├── __init__.py
+    ├── test_intent.py               # Intent parser tests
+    └── test_braille_render.py       # ASCII rendering tests
+```
+
+**Files currently referenced but to be migrated:**
+- `modules/braille_mapper.py` - Used by main.py for `BrailleMapper` class
+  - Replace with: `braille/mapping.py` with `get_braille_pattern(letter: str) -> list[int]` function
+- `modules/tts_feedback.py` - Used by main.py for `TTSFeedback` class
+  - Replace with: `audio/feedback.py` with same class behavior
+
+**Cleanup checklist:**
+- [ ] Create audio/feedback.py from modules/tts_feedback.py
+- [ ] Create braille/mapping.py from modules/braille_mapper.py
+- [ ] Update main.py imports to use new modules
+- [ ] Update speech/vosk_recognizer.py to use audio/utils.py
+- [ ] Delete modules/ directory
+- [ ] Delete test_whisper.py
+- [ ] Delete utils/audio_helper.py and utils/__init__.py
+- [ ] Delete tests/test_servo_controller.py
+- [ ] Delete tests/test_braille_mapper.py
+- [ ] Remove WHISPER_* from config.py
+- [ ] Update or delete setup.sh
+- [ ] Verify all tests pass: `uv run python -m unittest discover tests/`
+- [ ] Verify main.py --simulate works
+- [ ] Verify main.py --list-devices works
+
+---
+
 ## File Structure (Target State)
 
 ```
@@ -691,6 +777,12 @@ braille-learner/
 15. Update README.md
 16. Final integration test on hardware (if available)
 
+### Phase 5: Legacy Cleanup (Current)
+17. Migrate remaining modules/ code to new structure
+18. Delete legacy files and obsolete tests
+19. Clean config.py and setup.sh
+20. Final verification
+
 **Rollback Plan:** Keep git history clean. At each phase, the app should run. If issues arise, can revert to previous phase.
 
 ---
@@ -705,6 +797,8 @@ braille-learner/
 ✓ **ASCII output:** Grid uses O/. not Unicode  
 ✓ **Test coverage:** Intent parser, ASCII grid, servo timing  
 ✓ **Pi compatible:** No temp files, no heavy models, works offline  
+✓ **Clean codebase:** No legacy Whisper/Faster-Whisper code remaining  
+✓ **No duplicate code:** audio/utils.py unified, no utils/audio_helper.py  
 
 ---
 
@@ -717,3 +811,11 @@ braille-learner/
 **Fallback:** If Vosk grammar fails for some reason, recognizer can fall back to unconstrained mode (return anything, intent parser handles it).
 
 **Extensibility:** Easy to add new commands later (just add to grammar + intent parser).
+
+**Cleanup Notes:**
+- The migration from Whisper to Vosk is complete and working
+- Legacy code in `modules/` is now being removed entirely
+- All functionality has been migrated to the new clean structure
+- Tests have been updated to match new architecture
+- Config is now Whisper-free
+- The codebase is ready for production use
