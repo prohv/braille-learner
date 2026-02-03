@@ -1,0 +1,12 @@
+[project]
+name = "braille-learner"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "gpiozero>=2.0.1",
+    "pyaudio>=0.2.14",
+    "pyttsx3>=2.99",
+    "vosk>=0.3.45",
+]
