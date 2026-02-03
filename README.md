@@ -1,18 +1,20 @@
 # Voice-Controlled Braille Learning Device
 
-A compact, interactive electronic device that converts spoken alphanumeric input into tactile Braille patterns. Built for Raspberry Pi with offline speech recognition and servo-controlled tactile feedback.
+A compact, interactive electronic device that converts spoken letter names into tactile Braille patterns. Built for Raspberry Pi with offline speech recognition (Vosk) and servo-controlled tactile feedback.
 
 ## Features
 
-- **Offline Speech Recognition**: Uses Vosk for accurate voice input (A-Z letters)
+- **Offline Speech Recognition**: Uses Vosk with constrained grammar for reliable single-letter recognition
+- **Letter Name Recognition**: Accepts letter names like "bee", "cee", "double u", or "letter X" format
 - **Audio Feedback**: Confirms recognized characters with text-to-speech
 - **Tactile Output**: 6 servo motors display Braille patterns
 - **Simulation Mode**: Test without hardware using CLI output
-- **Verbose Mode**: Debug output for development and troubleshooting
+- **Debug Tools**: Device listing, microphone testing, and audio level meter
+- **Deterministic Recognition**: Grammar-constrained vocabulary prevents false positives
 
 ## Hardware Requirements
 
-- Raspberry Pi (3B+ or newer recommended)
+- Raspberry Pi 4 or 5 (3B+ may work but not recommended)
 - Microphone (USB or HAT)
 - 6x Servo motors (SG90 or similar)
 - External power supply for servos
@@ -20,7 +22,7 @@ A compact, interactive electronic device that converts spoken alphanumeric input
 
 ## Software Requirements
 
-- Python 3.8+
+- Python 3.9+
 - uv (package manager)
 
 ## Installation
@@ -31,56 +33,106 @@ A compact, interactive electronic device that converts spoken alphanumeric input
 cd Braille-Learner
 ```
 
-### 2. Run setup script
+### 2. Install dependencies
 
 ```bash
-chmod +x setup.sh
-./setup.sh
+uv add vosk numpy
 ```
-
-This installs system dependencies and Python packages.
 
 ### 3. Download Vosk model
 
 ```bash
-python download_model.py
+python download_vosk_model.py
 ```
 
-This downloads the small English model (~40MB) to `models/vosk-model-small-en-us-0.15/`.
+This downloads the Vosk English model (~40MB) to `models/vosk-model-small-en-us-0.15/`.
 
-### 4. Test audio devices (optional)
+### 4. Test audio setup (optional)
 
 ```bash
-python test_audio.py
+# List available audio devices
+python main.py --list-devices
+
+# Test microphone with live recognition
+python main.py --test-mic
+
+# Check audio levels
+python main.py --level-meter
 ```
-
-This shows available audio devices and detects the best sample rate for your microphone.
-
-### Manual model download
-
-If the download script fails, download manually:
-1. Visit: https://alphacephei.com/vosk/models
-2. Download: vosk-model-small-en-us-0.15.zip
-3. Extract to: models/vosk-model-small-en-us-0.15/
 
 ## Usage
 
-### Simulation Mode (no hardware)
+### Quick Start
 
 ```bash
+# Simulation mode (no hardware required)
 python main.py --simulate
-```
 
-### Hardware Mode
-
-```bash
+# Hardware mode (requires Raspberry Pi + servos)
 python main.py
 ```
 
-### Verbose Mode
+### All CLI Options
 
 ```bash
-python main.py --simulate --verbose
+python main.py --help
+```
+
+Options:
+- `--simulate`: Run in simulation mode (no hardware)
+- `--verbose`: Enable verbose output
+- `--list-devices`: List available audio devices and exit
+- `--test-mic`: Test microphone with live Vosk recognition
+- `--level-meter`: Show audio level meter for debugging
+
+### Speaking Letters
+
+The device recognizes letter names in multiple formats:
+
+**Direct letter names:**
+- "a", "b", "c" (single letters)
+- "bee", "cee", "dee" (phonetic names)
+- "double u", "double you" (for W)
+- "zee", "zed" (for Z)
+
+**With "letter" prefix (more reliable):**
+- "letter a", "letter bee", "letter cee"
+- "letter double u"
+
+**Exit command:**
+- "exit", "quit", or "stop"
+
+### Example Session
+
+```
+Voice-Controlled Braille Learning Device
+==========================================
+Mode: SIMULATION
+Verbose: OFF
+
+Instructions:
+- Speak a letter A-Z (e.g., 'a', 'bee', 'cee', 'double u')
+- Or say 'letter X' (e.g., 'letter bee')
+- Say 'exit' to quit
+- Press Ctrl+C to quit
+
+Listening... (speak a letter)
+
+Recognized: B
+
+Braille Grid:
+O .
+O .
+. .
+
+Pattern: [110000]
+Dots raised: [1, 2]
+Voice feedback: Letter B
+Displaying for 10 seconds...
+
+Resetting for next input...
+
+Listening... (speak a letter)
 ```
 
 ## GPIO Pin Configuration
@@ -101,52 +153,12 @@ Edit `config.py` to change pin assignments.
 ## Braille Dot Layout
 
 ```
-1 o o 4
-2 o o 5
-3 o o 6
+1 O O 4
+2 O O 5
+3 O O 6
 ```
 
-## Operation
-
-1. Speak a letter (A-Z) into the microphone
-2. The device recognizes the letter and speaks it back
-3. The Braille pattern is displayed:
-   - Hardware: Servos raise the corresponding dots
-   - Simulation: ASCII grid shows the pattern
-4. The pattern displays for 10 seconds
-5. All dots reset to the lowered position
-6. System waits for next input
-
-Say "exit" or press Ctrl+C to quit.
-
-## CLI Output Example
-
-```
-Voice-Controlled Braille Learning Device
-==========================================
-Mode: SIMULATION
-Verbose: ON
-
-Instructions:
-- Speak a letter A-Z to see the Braille pattern
-- Say 'exit' to quit
-- Press Ctrl+C to quit
-
-Listening...
-Recognized: A
-Braille: ⠁ [100000]
-
-Braille Grid:
-● ○
-○ ○
-○ ○
-
-Dots raised: [1]
-Voice feedback: Letter A
-Displaying for 10 seconds...
-
-Resetting for next input...
-```
+(O = raised dot, . = lowered dot)
 
 ## Configuration
 
@@ -155,63 +167,150 @@ Edit `config.py` to customize:
 - `SERVO_PINS`: GPIO pin numbers for each servo
 - `SERVO_ANGLES`: Raised (0°) and lowered (90°) positions
 - `DISPLAY_DURATION`: Time to keep Braille raised (default: 10s)
-- `LISTENING_TIMEOUT`: Time to wait for speech (default: 5s)
 - `VERBOSE_MODE`: Enable debug output
-- `AUTO_DETECT_SAMPLE_RATE`: Auto-detect microphone sample rate (default: True)
-- `AUDIO_SAMPLE_RATE`: Fallback sample rate (default: 16000 Hz)
-- `AUDIO_DEVICE_INDEX`: Specific audio device to use (default: None = system default)
+- `MAX_RECORDING_DURATION`: Maximum recording time (default: 10s)
+
+### Recognized Letter Phrases
+
+The grammar includes these letter name variants:
+
+- **A**: a, ay
+- **B**: b, bee, be
+- **C**: c, cee, see, sea
+- **D**: d, dee
+- **E**: e, ee
+- **F**: f, ef
+- **G**: g, gee
+- **H**: h, aitch
+- **I**: i, eye
+- **J**: j, jay
+- **K**: k, kay
+- **L**: l, el
+- **M**: m, em
+- **N**: n, en
+- **O**: o, oh
+- **P**: p, pee
+- **Q**: q, cue, queue
+- **R**: r, are
+- **S**: s, ess
+- **T**: t, tee, tea
+- **U**: u, you
+- **V**: v, vee
+- **W**: w, double u, double you
+- **X**: x, ex
+- **Y**: y, why
+- **Z**: z, zee, zed
+
+All phrases can also be prefixed with "letter" (e.g., "letter bee").
+
+## Architecture
+
+The application uses a clean, modular architecture:
+
+```
+speech/
+  intent.py         - Intent parser (maps phrases to letters/commands)
+  vosk_recognizer.py - Vosk streaming recognizer with grammar
+
+audio/
+  utils.py          - Audio utilities (RMS calculation, device listing)
+
+display/
+  base.py           - Display abstraction (ServoDisplay, SimulationDisplay)
+
+braille/
+  render.py         - ASCII grid rendering (O/.)
+
+tests/
+  test_intent.py    - Intent parser tests
+  test_braille_render.py - ASCII rendering tests
+```
 
 ## Testing
 
 Run unit tests:
 
 ```bash
-python -m pytest tests/
-```
+# All tests
+uv run python -m unittest discover tests/
 
-Or run individual test files:
+# Intent parser tests
+uv run python -m unittest tests.test_intent -v
 
-```bash
-python tests/test_braille_mapper.py
-python tests/test_servo_controller.py
+# Braille rendering tests
+uv run python -m unittest tests.test_braille_render -v
 ```
 
 ## Troubleshooting
 
-### "Failed to initialize speech recognizer"
+### "Failed to initialize speech recognition"
 
-- Ensure the Vosk model is downloaded: `python download_model.py`
-- Check model path in `config.py` matches actual location
+- Check Vosk is installed: `uv add vosk`
+- Check model is downloaded: `python download_vosk_model.py`
+- Model location: `models/vosk-model-small-en-us-0.15/`
 
-### "Invalid sample rate" error (-9997)
+### "No audio devices found"
 
-- Run the audio test: `python test_audio.py`
-- The app now auto-detects the best sample rate
-- If issues persist, check your microphone's supported sample rates in the test output
+- Check microphone is connected: `python main.py --list-devices`
+- Install audio system libraries:
+  ```bash
+  sudo apt install portaudio19-dev
+  ```
 
-### "aplay: command not found"
+### Speech not recognized
 
-- Install alsa-utils for audio playback (TTS):
+- Use `--test-mic` to verify microphone works
+- Try "letter X" format (e.g., "letter bee") for better recognition
+- Speak clearly and close to microphone
+- Check `--level-meter` to verify audio input levels
+
+### "I didn't understand 'hello world'"
+
+This is correct behavior! The device only recognizes letter names and exit commands. It rejects unknown phrases to prevent false positives.
+
+### "aplay: command not found" (TTS)
+
+- Install alsa-utils for audio playback:
   ```bash
   sudo apt install alsa-utils
   ```
+- TTS is optional - the device works without it
 
 ### "gpiozero not available"
 
-- Install system dependencies: `sudo apt install python3-gpiozero`
+- Install system dependencies:
+  ```bash
+  sudo apt install python3-gpiozero
+  ```
 - Or run in simulation mode: `python main.py --simulate`
 
-### No audio input
+### Recognition is slow
 
-- Run `python test_audio.py` to check available devices
-- Check microphone is connected and recognized: `arecord -l`
-- Test microphone: `arecord -f cd test.wav`
+- Vosk on Raspberry Pi 4/5 should be fast (< 500ms)
+- If slow, check CPU usage: `htop`
+- Consider disabling verbose mode to reduce overhead
 
 ### Servos not moving
 
 - Verify GPIO connections match `config.py`
-- Check external power supply is connected
+- Check external power supply is connected (servos need more power than Pi GPIO can provide)
 - Test servos individually with `gpiozero` examples
+
+### How do I add more commands?
+
+Edit `speech/intent.py`:
+1. Add phrases to `EXIT_PHRASES` for exit commands
+2. Create new intent types in `IntentType` enum
+3. Update `parse_intent()` function
+
+## Migration from Faster Whisper
+
+This project has migrated from Faster Whisper to Vosk for better single-letter recognition reliability. Key improvements:
+
+- **Grammar constraint**: Only recognizes letter names, no false positives
+- **Faster**: Streaming recognition without file I/O overhead
+- **Deterministic**: Same input always produces same output
+- **Offline**: No model downloads during runtime
 
 ## License
 
@@ -224,6 +323,6 @@ MIT License
 
 ## Acknowledgments
 
-- Vosk Speech Recognition Toolkit
-- gpiozero GPIO library
-- pyttsx3 Text-to-Speech
+- [Vosk](https://alphacephei.com/vosk/) - Offline speech recognition toolkit
+- [gpiozero](https://gpiozero.readthedocs.io/) - GPIO library for Raspberry Pi
+- [pyttsx3](https://pypi.org/project/pyttsx3/) - Text-to-Speech library

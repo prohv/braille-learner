@@ -3,9 +3,10 @@ name = "braille-learner"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.13"
 dependencies = [
     "gpiozero>=2.0.1",
+    "numpy>=2.4.2",
     "pyaudio>=0.2.14",
     "pyttsx3>=2.99",
     "vosk>=0.3.45",
