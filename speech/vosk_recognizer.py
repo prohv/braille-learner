@@ -114,15 +114,12 @@ class VoskLetterRecognizer:
                 print(f"[VERBOSE] Loaded Vosk model from {self.model_path}")
                 print(f"[VERBOSE] Grammar size: {len(self._grammar)} phrases")
 
-            # Create recognizer with grammar constraint
-            # Vosk accepts grammar as JSON array
-            grammar_json = json.dumps(self._grammar)
-            self.recognizer = vosk.KaldiRecognizer(
-                self.model, self.sample_rate, grammar_json
-            )
+            # Create recognizer without grammar constraint to avoid forced false positives
+            self.recognizer = vosk.KaldiRecognizer(self.model, self.sample_rate)
+            self.recognizer.SetWords(True)
 
             if config.VERBOSE_MODE:
-                print("[VERBOSE] Vosk recognizer initialized with grammar constraint")
+                print("[VERBOSE] Vosk recognizer initialized (unconstrained)")
 
         except Exception as e:
             raise VoskRecognizerError(f"Failed to initialize Vosk: {e}")

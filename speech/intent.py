@@ -37,90 +37,57 @@ class Intent:
 # Supports multiple variants for each letter (e.g., "bee", "be" both → "b")
 LETTER_PHRASES = {
     # A
-    "a": "a",
-    "ay": "a",
+    "a": "a", "ay": "a", "hey": "a", "hay": "a", "eh": "a", "day": "a",
     # B
-    "b": "b",
-    "bee": "b",
-    "be": "b",
+    "b": "b", "bee": "b", "be": "b", "me": "b", "we": "b",
     # C
-    "c": "c",
-    "cee": "c",
-    "see": "c",
-    "sea": "c",
+    "c": "c", "cee": "c", "see": "c", "sea": "c", "she": "c",
     # D
-    "d": "d",
-    "dee": "d",
+    "d": "d", "dee": "d", "the": "d", "they": "d", "there": "d",
     # E
-    "e": "e",
-    "ee": "e",
+    "e": "e", "ee": "e", "he": "e",
     # F
-    "f": "f",
-    "ef": "f",
+    "f": "f", "ef": "f", "if": "f", "off": "f", "half": "f",
     # G
-    "g": "g",
-    "gee": "g",
+    "g": "g", "gee": "g", "jee": "g",
     # H
-    "h": "h",
-    "aitch": "h",
+    "h": "h", "aitch": "h", "age": "h", "eight": "h",
     # I
-    "i": "i",
-    "eye": "i",
+    "i": "i", "eye": "i", "hi": "i", "high": "i",
     # J
-    "j": "j",
-    "jay": "j",
+    "j": "j", "jay": "j",
     # K
-    "k": "k",
-    "kay": "k",
+    "k": "k", "kay": "k", "okay": "k", "gay": "k",
     # L
-    "l": "l",
-    "el": "l",
+    "l": "l", "el": "l", "hell": "l", "all": "l", "ill": "l",
     # M
-    "m": "m",
-    "em": "m",
+    "m": "m", "em": "m", "am": "m", "um": "m", "them": "m",
     # N
-    "n": "n",
-    "en": "n",
+    "n": "n", "en": "n", "an": "n", "in": "n", "and": "n", "end": "n",
     # O
-    "o": "o",
-    "oh": "o",
+    "o": "o", "oh": "o", "zero": "o", "owe": "o",
     # P
-    "p": "p",
-    "pee": "p",
+    "p": "p", "pee": "p", "pe": "p",
     # Q
-    "q": "q",
-    "cue": "q",
-    "queue": "q",
+    "q": "q", "cue": "q", "queue": "q",
     # R
-    "r": "r",
-    "are": "r",
+    "r": "r", "are": "r", "or": "r", "our": "r", "hour": "r",
     # S
-    "s": "s",
-    "ess": "s",
+    "s": "s", "ess": "s", "yes": "s", "is": "s", "as": "s",
     # T
-    "t": "t",
-    "tee": "t",
-    "tea": "t",
+    "t": "t", "tee": "t", "tea": "t", "to": "t", "two": "t", "tree": "t",
     # U
-    "u": "u",
-    "you": "u",
+    "u": "u", "you": "u", "hue": "u", "who": "u",
     # V
-    "v": "v",
-    "vee": "v",
+    "v": "v", "vee": "v",
     # W
-    "w": "w",
-    "double u": "w",
-    "double you": "w",
+    "w": "w", "double u": "w", "double you": "w",
     # X
-    "x": "x",
-    "ex": "x",
+    "x": "x", "ex": "x", "axe": "x", "acts": "x",
     # Y
-    "y": "y",
-    "why": "y",
+    "y": "y", "why": "y", "while": "y", "wa": "y",
     # Z
-    "z": "z",
-    "zee": "z",
-    "zed": "z",
+    "z": "z", "zee": "z", "zed": "z", "ze": "z"
 }
 
 # Commands

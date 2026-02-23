@@ -109,6 +109,10 @@ class RecognitionWorker:
                         # Wait for display duration then reset
                         time_to_wait = config.DISPLAY_DURATION
                         threading.Timer(time_to_wait, self._send_reset).start()
+                    else:
+                        # Immediately ready to hear again if false positive
+                        time_to_wait = 1.0  # Just show the wrong text for 1 sec
+                        threading.Timer(time_to_wait, self._send_reset).start()
 
                 else:
                     # Timeout or no speech
