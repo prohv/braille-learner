@@ -114,12 +114,18 @@ class VoskLetterRecognizer:
                 print(f"[VERBOSE] Loaded Vosk model from {self.model_path}")
                 print(f"[VERBOSE] Grammar size: {len(self._grammar)} phrases")
 
-            # Create recognizer without grammar constraint to avoid forced false positives
-            self.recognizer = vosk.KaldiRecognizer(self.model, self.sample_rate)
+            # Create recognizer with grammar constraint to focus on single letters
+            # Add [unk] token to capture out-of-vocabulary noise instead of forcing false positives
+            grammar_list = list(self._grammar) if isinstance(self._grammar, set) else self._grammar
+            if "[unk]" not in grammar_list:
+                grammar_list.append("[unk]")
+            grammar_json = json.dumps(grammar_list)
+            
+            self.recognizer = vosk.KaldiRecognizer(self.model, self.sample_rate, grammar_json)
             self.recognizer.SetWords(True)
 
             if config.VERBOSE_MODE:
-                print("[VERBOSE] Vosk recognizer initialized (unconstrained)")
+                print("[VERBOSE] Vosk recognizer initialized (constrained with grammar)")
 
         except Exception as e:
             raise VoskRecognizerError(f"Failed to initialize Vosk: {e}")
@@ -184,8 +190,18 @@ class VoskLetterRecognizer:
                         text = result.get("text", "").strip()
 
                         if text:
+                            # Calculate confidence score
+                            words = result.get("result", [])
+                            if words:
+                                # Get average confidence
+                                avg_conf = sum(w.get("conf", 0.0) for w in words) / len(words)
+                                if avg_conf < 0.50:
+                                    if config.VERBOSE_MODE:
+                                        print(f"[VERBOSE] Rejected '{text}' due to low confidence: {avg_conf:.2f}")
+                                    continue
+
                             if config.VERBOSE_MODE:
-                                print(f"[VERBOSE] Recognized: '{text}'")
+                                print(f"[VERBOSE] Recognized: '{text}' (Conf: {avg_conf:.2f})" if words else f"[VERBOSE] Recognized: '{text}'")
                             return text
 
                         # Empty result, continue listening

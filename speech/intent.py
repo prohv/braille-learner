@@ -126,8 +126,12 @@ def parse_intent(phrase: str) -> Intent:
     if not phrase:
         return Intent(IntentType.UNKNOWN)
 
-    # Normalize: lowercase, strip whitespace
-    normalized = phrase.lower().strip()
+    # Normalize: lowercase, strip whitespace and '[unk]' tags
+    normalized = phrase.lower().replace("[unk]", "").strip()
+
+    # If the phrase became empty after removing [unk], it's unknown
+    if not normalized:
+        return Intent(IntentType.UNKNOWN)
 
     # Check for "letter " prefix
     if normalized.startswith("letter "):
