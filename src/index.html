@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Braille Learner Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="main-container">
+        <header class="header">
+            <h1>BRAILLE LEARNER</h1>
+            <div id="status-tag" class="status-tag active">SYSTEM ACTIVE</div>
+        </header>
+
+        <div class="simulation-grid">
+            <!-- The Braille Device Card -->
+            <div class="device-card">
+                <div class="braille-grid">
+                    <div id="dot-1" class="dot" data-dot="1"></div>
+                    <div id="dot-4" class="dot" data-dot="4"></div>
+                    <div id="dot-2" class="dot" data-dot="2"></div>
+                    <div id="dot-5" class="dot" data-dot="5"></div>
+                    <div id="dot-3" class="dot" data-dot="3"></div>
+                    <div id="dot-6" class="dot" data-dot="6"></div>
+                </div>
+                <div class="device-label">TACTILE SURFACE</div>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="info-panel">
+                <div class="letter-card">
+                    <span class="label">RECOGNIZED LETTER</span>
+                    <div id="current-letter" class="huge-letter">-</div>
+                </div>
+
+                <div class="speech-status-card">
+                    <span class="label">SPEECH ENGINE</span>
+                    <div id="speech-log" class="speech-text">Ready to hear...</div>
+                </div>
+            </div>
+        </div>
+
+        <section class="test-input-section">
+            <h2>TEST INPUT (SIMULATION)</h2>
+            <div class="test-controls">
+                <input type="text" id="test-letter" maxlength="1" placeholder="A-Z">
+                <button id="test-btn">DISPLAY</button>
+            </div>
+        </section>
+
+        <section class="history-section">
+            <h2>HISTORY</h2>
+            <div id="history-list" class="history-list">
+                <!-- Log entries will appear here -->
+            </div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
